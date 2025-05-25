@@ -26,16 +26,21 @@ BEGIN
 	zeros_temp <= (others => '0');
 	ones_temp <= not zeros_temp;
 	
-	sub_cont_vec1 <= (OTHERS => '1') WHEN sub_cont = "001" OR sub_cont = "010" ELSE (OTHERS => '0');
+	sub_cont_vec1 <= (OTHERS => '1') WHEN sub_cont = "001" OR sub_cont = "010" OR sub_cont = "011" OR sub_cont = "100" ELSE (OTHERS => '0');
 
-	x_temp <= x when sub_cont = "001" else 
+	x_temp <= x when sub_cont = "001" else
 	          x when sub_cont = "010" else                
 			  x when sub_cont = "000" else
+			  (others => '0') when (sub_cont = "011") else  -- Increment Y by 1 (X unused).
+              (others => '1') when (sub_cont = "100") else  -- Decrement Y by 1 (X unused).
 			  zeros_temp; 
 	
-	y_temp <= y when sub_cont = "001" else                 
-			  y when sub_cont = "000" else
-			  zeros_temp;
+	y_temp <=  y when sub_cont = "000" else  -- example other case  
+			   y when sub_cont = "001" else  
+			   y when sub_cont = "011" else  
+			   y when sub_cont = "100" else  
+			   (y(3 downto 0) & y(7 downto 4))  when sub_cont = "101" else  
+			   zeros_temp;
 			  
 	x_xor_sub <= x_temp xor sub_cont_vec1; 
 	

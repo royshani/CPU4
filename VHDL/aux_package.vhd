@@ -13,12 +13,12 @@ component top IS
 		  ALUout_o: out STD_LOGIC_VECTOR(n-1 downto 0);
 		  Nflag_o,Cflag_o,Zflag_o,Vflag_o, Pwm_out: OUT STD_LOGIC
   ); 
-end component;
+end component top;
 ---------------------------------------------------------  
 	component FA is
 		PORT (xi, yi, cin: IN std_logic;
 			      s, cout: OUT std_logic);
-	end component;
+	end component FA;
 ---------------------------------------------------------	
 	component shifter is 
 	GENERIC (
@@ -30,7 +30,7 @@ end component;
 			res : out STD_LOGIC_VECTOR (n-1 downto 0);
 			cout : out STD_LOGIC
 			);
-	end component;
+	end component shifter;
 -------------------------------------------------------------
 
 component logic IS
@@ -38,7 +38,7 @@ component logic IS
 	PORT (x, y: IN std_logic_vector (n-1 downto 0);
 			fn : IN std_logic_vector (2 downto 0);
 			  res : OUT std_logic_vector (n-1 downto 0));
-END component;	
+END component logic;	
 	
 ------------------------------------------------------------
 
@@ -48,16 +48,17 @@ component AdderSub IS
 			 x,y: IN STD_LOGIC_VECTOR (n-1 DOWNTO 0);
             cout: OUT STD_LOGIC;
                res: OUT STD_LOGIC_VECTOR(n-1 downto 0));
-END component;	
+END component AdderSub;	
 
 ---------------------------------------------------------------
 
 component Pwm IS
 	GENERIC (n : INTEGER := 8);
 	PORT (x, y: IN std_logic_vector (n-1 downto 0);
-			fn, rst, clk, ena : IN std_logic;
+			rst, clk, ena : IN std_logic;
+			fn :IN STD_LOGIC_VECTOR(2 downto 0);
 			  pwm_out : OUT std_logic);
-END component;
+END component Pwm;
 
 ---------------------------------------------------------------
 
@@ -70,7 +71,7 @@ component down_entity IS
 		  pwm_o: out STD_LOGIC;
 		  clk, rst, ena: in STD_LOGIC
   ); 
-END component;
+END component down_entity;
 
 -------------------------------------------------------------
 
@@ -85,7 +86,7 @@ component ALU IS
 		  ALUout_o: out STD_LOGIC_VECTOR(n-1 downto 0);
 		  Nflag_o,Cflag_o,Zflag_o,Vflag_o: OUT STD_LOGIC
   ); 
-end component;
+end component ALU;
 
 -------------------------------------------------------------
 
@@ -94,7 +95,7 @@ COMPONENT SevenSegDecoder IS
 			SegmentSize	: integer := 7);
   PORT (data		: in STD_LOGIC_VECTOR (n-1 DOWNTO 0);
 		seg   		: out STD_LOGIC_VECTOR (SegmentSize-1 downto 0));
-END COMPONENT;
+END COMPONENT SevenSegDecoder;
 
 ------------------------------------------------------------
 
@@ -106,7 +107,7 @@ COMPONENT PLL IS
 		c0		: OUT STD_LOGIC ;
 		locked		: OUT STD_LOGIC 
 	);
-END COMPONENT;
+END COMPONENT PLL;
 
 ------------------------------------------------------------
 
@@ -114,7 +115,7 @@ COMPONENT counter is port (
 	clk,enable : in std_logic;	
 	q          : out std_logic
 );
-end COMPONENT;
+end COMPONENT counter;
 
 ------------------------------------------------------------
 
@@ -124,14 +125,14 @@ COMPONENT clk_div IS
 		  -- Switch Port
 		  q: out std_logic  
   );
-end COMPONENT;
+end COMPONENT clk_div;
 
 -------------------------------------------------------------
 
 COMPONENT CounterEnvelope is port (
 	Clk,En : in std_logic;	
 	Qout          : out std_logic); 
-end COMPONENT ;
+end COMPONENT CounterEnvelope;
 
 end aux_package;
 

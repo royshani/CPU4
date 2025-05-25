@@ -19,20 +19,31 @@ ARCHITECTURE struct OF down_entity IS
 
 	SIGNAL ALUOUT, y_pwm, x_pwm : std_logic_vector(n-1 DOWNTO 0);
 	SIGNAL highz : std_logic_vector(n-1 DOWNTO 0) := (others => 'Z');
-	SIGNAL ALUFN_PWM, ALUFN_TEMP : STD_LOGIC_VECTOR (2 DOWNTO 0);
-	SIGNAL pwm_mode : STD_LOGIC;
+	SIGNAL ALUFN_PWM, ALUFN_TEMP, pwm_mode : STD_LOGIC_VECTOR (2 DOWNTO 0);
 	
 BEGIN
 	ALUFN_TEMP <= ALUFN_i (2 DOWNTO 0);
 	
 	y_pwm <= y when ALUFN_i(4 DOWNTO 3) = "00" else highz;
 	x_pwm <= x when ALUFN_i(4 DOWNTO 3) = "00" else highz;
-	pwm_mode <= ALUFN_TEMP(0) when  ALUFN_i(4 DOWNTO 3) = "00" else 'Z';
+	pwm_mode <= ALUFN_TEMP(2 DOWNTO 0) when  ALUFN_i(4 DOWNTO 3) = "00" else (others => 'Z');
 	
 	---------------------------------------------------------------------------------------------------------
-	
-	pwm_part : Pwm generic map(n) port map( x_pwm, y_pwm, pwm_mode, rst, clk, ena, pwm_o);
-	
+	pwm_part : Pwm
+	  generic map (
+		n => n
+	  )
+	  port map (
+		x       => x_pwm,
+		y       => y_pwm,
+		rst     => rst,
+		clk     => clk,
+		ena     => ena,
+		fn      => pwm_mode,
+		pwm_out => pwm_o
+	  );
+
+
 	---------------------------------------------------------------------------------------------------------
 	
 END struct;

@@ -1,35 +1,55 @@
-LIBRARY ieee;
-USE ieee.std_logic_1164.all;
-USE work.aux_package.all;
--------------------------------------
-ENTITY SevenSegDecoder IS
-  GENERIC (	n			: INTEGER := 4;
-			SegmentSize	: integer := 7);
-  PORT (data		: in STD_LOGIC_VECTOR (n-1 DOWNTO 0);
-		seg   		: out STD_LOGIC_VECTOR (SegmentSize-1 downto 0));
-END SevenSegDecoder;
---------------------------------------------------------------
-ARCHITECTURE dfl OF SevenSegDecoder IS
-BEGIN
-	-- Perform Operation according FN bits of ALUFN 
-	with data select
-		seg  <= "1000000" when "0000", -- 0
-				"1111001" when "0001", -- 1
-				"0100100" when "0010", -- 2
-				"0110000" when "0011", -- 3
-				"0011001" when "0100", -- 4
-				"0010010" when "0101", -- 5
-				"0000010" when "0110", -- 6
-				"1111000" when "0111", -- 7 
-				"0000000" when "1000", -- 8 
-				"0010000" when "1001", -- 9
-				"0001000" when "1010", -- A
-				"0000011" when "1011", -- B
-				"1000110" when "1100", -- C
-				"0100001" when "1101", -- D
-				"0000110" when "1110", -- E
-				"0001110" when "1111", -- F
-				"1111111" when others; -- None
+library ieee;
+use    ieee.std_logic_1164.all;
 
-					
-END dfl;
+entity SevenSegDecoder is
+  generic (
+    n           : integer := 4;
+    SegmentSize : integer := 7
+  );
+  port (
+    data : in  std_logic_vector(n-1 downto 0);
+    seg  : out std_logic_vector(SegmentSize-1 downto 0)
+  );
+end entity SevenSegDecoder;
+
+architecture dfl of SevenSegDecoder is
+begin
+  process(data)
+  begin
+    if data = "0000" then
+      seg <= "1000000";  -- 0
+    elsif data = "0001" then
+      seg <= "1111001";  -- 1
+    elsif data = "0010" then
+      seg <= "0100100";  -- 2
+    elsif data = "0011" then
+      seg <= "0110000";  -- 3
+    elsif data = "0100" then
+      seg <= "0011001";  -- 4
+    elsif data = "0101" then
+      seg <= "0010010";  -- 5
+    elsif data = "0110" then
+      seg <= "0000010";  -- 6
+    elsif data = "0111" then
+      seg <= "1111000";  -- 7
+    elsif data = "1000" then
+      seg <= "0000000";  -- 8
+    elsif data = "1001" then
+      seg <= "0010000";  -- 9
+    elsif data = "1010" then
+      seg <= "0001000";  -- A
+    elsif data = "1011" then
+      seg <= "0000011";  -- B
+    elsif data = "1100" then
+      seg <= "1000110";  -- C
+    elsif data = "1101" then
+      seg <= "0100001";  -- D
+    elsif data = "1110" then
+      seg <= "0000110";  -- E
+    elsif data = "1111" then
+      seg <= "0001110";  -- F
+    else
+      seg <= "1111111";  -- blank
+    end if;
+  end process;
+end architecture dfl;
