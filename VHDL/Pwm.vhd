@@ -5,7 +5,7 @@ use    IEEE.std_logic_unsigned.all;
 use    work.aux_package.all;
 
 entity Pwm is
-  generic ( n : integer := 8 );
+  generic ( n : integer := 16 );
   port (
     x, y     : in  std_logic_vector(n-1 downto 0);
     rst, clk,
