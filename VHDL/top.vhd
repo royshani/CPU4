@@ -31,6 +31,10 @@ ARCHITECTURE roman OF top IS
 	signal X_pwm, Y_pwm :  std_logic_vector(pwm_n-1 downto 0);
 	signal ref_clk, Nflag_o, Cflag_o, Zflag_o, Vflag_o, rst, ena: STD_LOGIC;
 	signal ALUFN_i: std_logic_vector(4 downto 0);
+	signal X_nibble0, X_nibble1 : std_logic_vector(3 downto 0);
+	signal Y_nibble0, Y_nibble1 : std_logic_vector(3 downto 0);
+	signal ALU_nibble0, ALU_nibble1 : std_logic_vector(3 downto 0);
+
 	
 BEGIN
 
@@ -57,19 +61,20 @@ BEGIN
 	
 	ALU_part : ALU generic map(n) port map( Y, X, ALUFN_i , ALUout_o, Nflag_o, Cflag_o, Zflag_o, Vflag_o);
 	
-	down_entity_part : down_entity generic map(pwm_n) port map( X, Y, ALUFN_i, Pwm_out, clk, rst, ena);
+	down_entity_part : down_entity generic map(pwm_n) port map( X_pwm, Y_pwm, ALUFN_i, Pwm_out, clk, rst, ena);
 	
 	---------------------------------------------------------------------------------------------------------
 	---------------------7 Segment Decoder-----------------------------
-	-- Display X on 7 segment
-	DecoderModuleXHex0: 	SevenSegDecoder	port map(X(3 downto 0) , HEX0);
-	DecoderModuleXHex1: 	SevenSegDecoder	port map(X(7 downto 4) , HEX1);
-	-- Display Y on 7 segment
-	DecoderModuleYHex2: 	SevenSegDecoder	port map(Y(3 downto 0) , HEX2);
-	DecoderModuleYHex3: 	SevenSegDecoder	port map(Y(7 downto 4) , HEX3);
-	-- Display ALU output on 7 segment
-	DecoderModuleOutHex4: 	SevenSegDecoder	port map(ALUout_o(3 downto 0) , HEX4);
-	DecoderModuleOutHex5: 	SevenSegDecoder	port map(ALUout_o(7 downto 4) , HEX5);
+	-- X display in HEX
+	DecoderModuleXHex0: SevenSegDecoder port map(X_nibble0, HEX0);
+	DecoderModuleXHex1: SevenSegDecoder port map(X_nibble1, HEX1);
+	-- Y display in HEX
+	DecoderModuleYHex2: SevenSegDecoder port map(Y_nibble0, HEX2);
+	DecoderModuleYHex3: SevenSegDecoder port map(Y_nibble1, HEX3);
+	-- ALU output display in HEX
+	DecoderModuleOutHex4: SevenSegDecoder port map(ALU_nibble0, HEX4);
+	DecoderModuleOutHex5: SevenSegDecoder port map(ALU_nibble1, HEX5);
+
 	--------------------LEDS Binding-------------------------
 	LEDs(0) <= Vflag_o;
 	LEDs(1) <= Zflag_o;
@@ -99,5 +104,16 @@ BEGIN
 			end if;
 --		end if;
 	end process;
-		
+	
+	process(SW_i(9))
+	begin
+		X_nibble0 <= X(3 downto 0) when SW_i(9) = '1' else "1111";
+		X_nibble1 <= X(7 downto 4) when SW_i(9) = '1' else "1111";
+
+		Y_nibble0 <= Y(3 downto 0) when SW_i(9) = '1' else "1111";
+		Y_nibble1 <= Y(7 downto 4) when SW_i(9) = '1' else "1111";
+
+		ALU_nibble0 <= ALUout_o(3 downto 0) when SW_i(9) = '1' else "1111";
+		ALU_nibble1 <= ALUout_o(7 downto 4) when SW_i(9) = '1' else "1111";
+	end process;	
 END roman;
