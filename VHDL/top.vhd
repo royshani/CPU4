@@ -82,7 +82,7 @@ BEGIN
 	LEDs(3) <= Cflag_o;
 	LEDs(9 downto 5) <= ALUFN_i;
 	-------------------Keys Binding--------------------------
-	process(KEY0, KEY1, KEY2, SW_i(9)) 
+	registerAssignment: process(KEY0, KEY1, KEY2, SW_i(9)) 
 	begin
 	--	if rising_edge(clk) then
 			if KEY0 = '0' and SW_i(9) = '0' then
@@ -103,9 +103,9 @@ BEGIN
 				ena <= '1';
 			end if;
 --		end if;
-	end process;
+	end process registerAssignment;
 	
-	process(SW_i(9))
+	NibbleSelector : process(SW_i(9), X, Y, ALUout_o)
 	begin
 		X_nibble0 <= X(3 downto 0) when SW_i(9) = '1' else "1111";
 		X_nibble1 <= X(7 downto 4) when SW_i(9) = '1' else "1111";
@@ -115,5 +115,6 @@ BEGIN
 
 		ALU_nibble0 <= ALUout_o(3 downto 0) when SW_i(9) = '1' else "1111";
 		ALU_nibble1 <= ALUout_o(7 downto 4) when SW_i(9) = '1' else "1111";
-	end process;	
+	end process NibbleSelector;
+	
 END roman;
