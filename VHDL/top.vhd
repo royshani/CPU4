@@ -105,16 +105,28 @@ BEGIN
 --		end if;
 	end process registerAssignment;
 	
-	NibbleSelector : process(SW_i(9), X, Y, ALUout_o)
+	NibbleSelector : process(SW_i, X, Y, ALUout_o)
 	begin
-		X_nibble0 <= X(3 downto 0) when SW_i(9) = '1' else "1111";
-		X_nibble1 <= X(7 downto 4) when SW_i(9) = '1' else "1111";
+		if SW_i(9) = '1' then
+			X_nibble0 <= X(3 downto 0);
+			X_nibble1 <= X(7 downto 4);
 
-		Y_nibble0 <= Y(3 downto 0) when SW_i(9) = '1' else "1111";
-		Y_nibble1 <= Y(7 downto 4) when SW_i(9) = '1' else "1111";
+			Y_nibble0 <= Y(3 downto 0);
+			Y_nibble1 <= Y(7 downto 4);
 
-		ALU_nibble0 <= ALUout_o(3 downto 0) when SW_i(9) = '1' else "1111";
-		ALU_nibble1 <= ALUout_o(7 downto 4) when SW_i(9) = '1' else "1111";
+			ALU_nibble0 <= ALUout_o(3 downto 0);
+			ALU_nibble1 <= ALUout_o(7 downto 4);
+		else
+			X_nibble0 <= "1111";
+			X_nibble1 <= "1111";
+
+			Y_nibble0 <= "1111";
+			Y_nibble1 <= "1111";
+
+			ALU_nibble0 <= "1111";
+			ALU_nibble1 <= "1111";
+		end if;
 	end process NibbleSelector;
+
 	
 END roman;
