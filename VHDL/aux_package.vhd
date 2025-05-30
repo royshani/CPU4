@@ -53,7 +53,7 @@ END component AdderSub;
 ---------------------------------------------------------------
 
 component Pwm IS
-	GENERIC (n : INTEGER := 8);
+	GENERIC (n : INTEGER := 16);
 	PORT (x, y: IN std_logic_vector (n-1 downto 0);
 			rst, clk, ena : IN std_logic;
 			fn :IN STD_LOGIC_VECTOR(2 downto 0);
@@ -63,7 +63,7 @@ END component Pwm;
 ---------------------------------------------------------------
 
 component down_entity IS
-  GENERIC (n : INTEGER := 8); 
+  GENERIC (n : INTEGER := 16); 
   PORT 
   (  
 	x, y: IN STD_LOGIC_VECTOR (n-1 DOWNTO 0);

@@ -5,7 +5,7 @@ use ieee.std_logic_unsigned.all;
 USE work.aux_package.all;
 -------------------------------------
 ENTITY down_entity IS
-  GENERIC (n : INTEGER := 8); 
+  GENERIC (n : INTEGER := 16); 
   PORT 
   (  
 	x, y: IN STD_LOGIC_VECTOR (n-1 DOWNTO 0);

@@ -7,12 +7,13 @@ USE work.aux_package.all;
 ------------------------------------------------------------
 ENTITY top IS
   GENERIC (	HEX_num : integer := 7;
-			n : INTEGER := 8
+			n : INTEGER := 8;
+			pwm_n: INTEGER := 16
 			); 
   PORT (
 		  clk  : in std_logic; -- for single tap
 		  -- Switch Port
-		  SW_i : in std_logic_vector(n downto 0);
+		  SW_i : in std_logic_vector(9 downto 0);
 		  -- Keys Ports
 		  KEY0, KEY1, KEY2, KEY3 : in std_logic;
 		  Pwm_out : OUT std_logic;
@@ -27,6 +28,7 @@ END top;
 ARCHITECTURE roman OF top IS 
 	
 	signal ALUout_o, X, Y : std_logic_vector(n-1 downto 0);
+	signal X_pwm, Y_pwm :  std_logic_vector(pwm_n-1 downto 0);
 	signal ref_clk, Nflag_o, Cflag_o, Zflag_o, Vflag_o, rst, ena: STD_LOGIC;
 	signal ALUFN_i: std_logic_vector(4 downto 0);
 	
@@ -55,7 +57,7 @@ BEGIN
 	
 	ALU_part : ALU generic map(n) port map( Y, X, ALUFN_i , ALUout_o, Nflag_o, Cflag_o, Zflag_o, Vflag_o);
 	
-	down_entity_part : down_entity generic map(n) port map( x, y, ALUFN_i, Pwm_out, clk, rst, ena);
+	down_entity_part : down_entity generic map(pwm_n) port map( X, Y, ALUFN_i, Pwm_out, clk, rst, ena);
 	
 	---------------------------------------------------------------------------------------------------------
 	---------------------7 Segment Decoder-----------------------------
@@ -75,22 +77,27 @@ BEGIN
 	LEDs(3) <= Cflag_o;
 	LEDs(9 downto 5) <= ALUFN_i;
 	-------------------Keys Binding--------------------------
-	process(KEY0, KEY1, KEY2) 
+	process(KEY0, KEY1, KEY2, SW_i(9)) 
 	begin
 	--	if rising_edge(clk) then
-			if KEY0 = '0' then
-				Y     <= SW_i(n-1 downto 0);
-			elsif KEY1 = '0' then
-				ALUFN_i <= SW_i(4 downto 0);
+			if KEY0 = '0' and SW_i(9) = '0' then
+				Y <= SW_i(n-1 downto 0);
+				Y_pwm(7 downto 0) <= SW_i(n-1 downto 0);
+			elsif KEY0 = '0' and SW_i(9) = '1' then
+				Y_pwm(15 downto 8) <= SW_i(n-1 downto 0);
+			elsif KEY1 = '0' and SW_i(9) = '0' then
+				X <= SW_i(n-1 downto 0);
+				X_pwm(7 downto 0) <= SW_i(n-1 downto 0);
+			elsif KEY1 = '0' and SW_i(9) = '1' then
+				X_pwm(15 downto 8) <= SW_i(n-1 downto 0);
 			elsif KEY2 = '0' then
-				X	  <= SW_i(n-1 downto 0);				
+				ALUFN_i <= SW_i(4 downto 0);
 			elsif KEY3 = '0' then
-				rst	  <= '1';	
+				rst <= '1';
 			elsif SW_i(8) = '1' then
-				ena	  <= '1';	
+				ena <= '1';
 			end if;
 --		end if;
 	end process;
 		
 END roman;
-
