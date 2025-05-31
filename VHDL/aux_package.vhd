@@ -4,13 +4,17 @@ use ieee.std_logic_1164.all;
 package aux_package is
 --------------------------------------------------------
 component top IS
-  GENERIC (n : INTEGER := 8); 
+  GENERIC (	HEX_num : integer := 7;
+			n : INTEGER := 8;
+			pwm_n: INTEGER := 16
+			); 
   PORT 
   (  
 	x, y: IN STD_LOGIC_VECTOR (n-1 DOWNTO 0);
 	clk, rst, ena : IN STD_LOGIC;
 		  ALUFN_i : IN STD_LOGIC_VECTOR (4 DOWNTO 0);
 		  ALUout_o: out STD_LOGIC_VECTOR(n-1 downto 0);
+		  HEX0, HEX1, HEX2, HEX3, HEX4, HEX5: out std_logic_vector(HEX_num-1 downto 0);
 		  Nflag_o,Cflag_o,Zflag_o,Vflag_o, Pwm_out: OUT STD_LOGIC
   ); 
 end component top;
