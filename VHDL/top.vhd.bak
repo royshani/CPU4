@@ -83,18 +83,10 @@ BEGIN
 	LEDs(9 downto 5) <= ALUFN_i;
 	
 	-------------------Keys Binding--------------------------
-	registerAssignment: process(KEY0, KEY1, KEY2, KEY3, SW_i(9), SW_i(8)) 
+	registerAssignment: process(KEY0, KEY1, KEY2,KEY3, SW_i(9), SW_i(8)) 
 	begin
 	--	if rising_edge(clk) then
-			if KEY3 = '0' then
-			rst <= '1';
-			Y <= (others => '0') ;
-			X <= (others => '0') ;
-			ALUFN_i <= (others => '0');
-			X_pwm <= (others => '0');
-			Y_pwm <= (others => '0');
-			
-			elsif KEY0 = '0' and SW_i(9) = '0' then
+			if KEY0 = '0' and SW_i(9) = '0' then
 				rst <= '0';
 				Y <= SW_i(n-1 downto 0);
 				Y_pwm(7 downto 0) <= SW_i(n-1 downto 0);
@@ -111,10 +103,15 @@ BEGIN
 			elsif KEY2 = '0' then
 				rst <= '0';
 				ALUFN_i <= SW_i(4 downto 0);
+			elsif KEY3 = '0' then
+				rst <= '1';
+				Y <= (others => '0') ;
+				X <= (others => '0') ;
+				ALUFN_i <= (others => '0');
+				X_pwm <= (others => '0');
+				Y_pwm <= (others => '0');
 			elsif SW_i(8) = '1' then
 				ena <= '1';
-			elsif SW_i(8) = '0' then
-				ena <= '0';
 			end if;
 	--	end if;
 	end process registerAssignment;
