@@ -11,7 +11,7 @@ ENTITY top IS
 			pwm_n: INTEGER := 16
 			); 
   PORT (
-		  clk  : in std_logic; -- for single tap
+		  clk  : in std_logic; -- for signal tap
 		  -- Switch Port
 		  SW_i : in std_logic_vector(9 downto 0);
 		  -- Keys Ports
@@ -29,39 +29,26 @@ ARCHITECTURE roman OF top IS
 	
 	signal ALUout_o, X, Y : std_logic_vector(n-1 downto 0);
 	signal X_pwm, Y_pwm :  std_logic_vector(pwm_n-1 downto 0);
-	signal ref_clk, Nflag_o, Cflag_o, Zflag_o, Vflag_o, rst, ena: STD_LOGIC;
+	signal Nflag_o, Cflag_o, Zflag_o, Vflag_o, rst, ena: STD_LOGIC;
 	signal ALUFN_i: std_logic_vector(4 downto 0);
 	signal X_nibble0, X_nibble1 : std_logic_vector(3 downto 0);
 	signal Y_nibble0, Y_nibble1 : std_logic_vector(3 downto 0);
 	signal ALU_nibble0, ALU_nibble1 : std_logic_vector(3 downto 0);
-
+	signal ALU_clk : STD_LOGIC;
+	SIGNAL highz : std_logic_vector(n-1 DOWNTO 0) := (others => 'Z');  -- High impedance 
 	
 BEGIN
 
 	---------------------------------------------------------------------------------------------------------
-	--process (clk)
-    --begin
-        --if (rst = '1') then
-            --Nflag_o <= '0';
-			--Vflag_o <= '0';
-			--Zflag_o <= '0';
-			--Cflag_o <= '0';
-			--X <= "00000000";
-			--Y <= "00000000";
-			--ALUFN_i <= "00000";
-            --Pwm_out <= '0';
-        --elsif rising_edge(clk) then
-            --if ena = '1' then
-				
-            --end if; 
-       -- end if;
-    --end process;
-	
-	clk_div_part : CounterEnvelope  port map(clk, ena, ref_clk);
+	m1: PLL port map(
+	inclk0 => clk,
+	c0 => ALU_clk
+	);
+
 	
 	ALU_part : ALU generic map(n) port map( Y, X, ALUFN_i , ALUout_o, Nflag_o, Cflag_o, Zflag_o, Vflag_o);
 	
-	down_entity_part : down_entity generic map(pwm_n) port map( X_pwm, Y_pwm, ALUFN_i, Pwm_out, clk, rst, ena);
+	down_entity_part : down_entity generic map(pwm_n) port map( X_pwm, Y_pwm, ALUFN_i, Pwm_out, ALU_clk, rst, ena);
 	
 	---------------------------------------------------------------------------------------------------------
 	---------------------7 Segment Decoder-----------------------------
@@ -75,17 +62,10 @@ BEGIN
 	DecoderModuleOutHex4: SevenSegDecoder port map(ALU_nibble0, HEX4);
 	DecoderModuleOutHex5: SevenSegDecoder port map(ALU_nibble1, HEX5);
 
-	--------------------LEDS Binding-------------------------
-	LEDs(0) <= Vflag_o;
-	LEDs(1) <= Zflag_o;
-	LEDs(2) <= Nflag_o;
-	LEDs(3) <= Cflag_o;
-	LEDs(9 downto 5) <= ALUFN_i;
-	
 	-------------------Keys Binding--------------------------
 	registerAssignment: process(KEY0, KEY1, KEY2, KEY3, SW_i(9), SW_i(8)) 
 	begin
-	--	if rising_edge(clk) then
+		if rising_edge(clk) then
 			if KEY3 = '0' then
 			rst <= '1';
 			Y <= (others => '0') ;
@@ -108,18 +88,25 @@ BEGIN
 			elsif KEY1 = '0' and SW_i(9) = '1' then
 				rst <= '0';
 				X_pwm(15 downto 8) <= SW_i(n-1 downto 0);
-			elsif KEY2 = '0' then
-				rst <= '0';
-				ALUFN_i <= SW_i(4 downto 0);
-			elsif SW_i(8) = '1' then
-				ena <= '1';
-			elsif SW_i(8) = '0' then
-				ena <= '0';
 			end if;
-	--	end if;
+
+			if SW_i(8) = '1' then
+				rst <= '0';
+				ena <= '1';
+				if KEY2 = '0' THEN
+					ALUFN_i <= SW_i(4 downto 0);
+				END IF;
+			elsif SW_i(8) = '0' then
+				rst <= '0';
+				ena <= '0';
+				if KEY2 = '0' then
+					ALUFN_i <= highz(4 downto 0);
+				end if;
+			end if;
+		end if;
 	end process registerAssignment;
 	
-	NibbleSelector : process(SW_i, X, Y, ALUout_o, SW_i(8))
+	NibbleSelector : process(SW_i, X, Y, ALUout_o)
 	begin
 		if SW_i(9) = '0' then
 			X_nibble0 <= X(3 downto 0);
@@ -128,18 +115,30 @@ BEGIN
 			Y_nibble0 <= Y(3 downto 0);
 			Y_nibble1 <= Y(7 downto 4);
 
-			ALU_nibble0 <= ALUout_o(3 downto 0);
-			ALU_nibble1 <= ALUout_o(7 downto 4);
 		else
 			X_nibble0 <= X_pwm(11 downto 8);
 			X_nibble1 <= X_pwm(15 downto 12);
 
 			Y_nibble0 <= Y_pwm(11 downto 8);
 			Y_nibble1 <= Y_pwm(15 downto 12);
+				
+		end if;
 
+		--if ena = '1' then
 			ALU_nibble0 <= ALUout_o(3 downto 0);
 			ALU_nibble1 <= ALUout_o(7 downto 4);
-		end if;
+			LEDs(0) <= Vflag_o;
+			LEDs(1) <= Zflag_o;
+			LEDs(2) <= Nflag_o;
+			LEDs(3) <= Cflag_o;
+			LEDs(9 downto 5) <= ALUFN_i;
+		--else
+		--	ALU_nibble0 <= (others => '0') ;
+		--	ALU_nibble1 <= (others => '0') ;
+		--	LEDs <= (others => '0') ;
+		-- end if;
+
+			--------------------LEDS Binding-------------------------
 	end process NibbleSelector;
 
 	

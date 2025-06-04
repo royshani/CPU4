@@ -115,28 +115,5 @@ END COMPONENT PLL;
 
 ------------------------------------------------------------
 
-COMPONENT counter is port (
-	clk,enable : in std_logic;	
-	q          : out std_logic
-);
-end COMPONENT counter;
-
-------------------------------------------------------------
-
-COMPONENT clk_div IS
-  PORT (
-		  clk, ena, rst  : in std_logic; -- for single tap
-		  -- Switch Port
-		  q: out std_logic  
-  );
-end COMPONENT clk_div;
-
--------------------------------------------------------------
-
-COMPONENT CounterEnvelope is port (
-	Clk,En : in std_logic;	
-	Qout          : out std_logic); 
-end COMPONENT CounterEnvelope;
-
 end aux_package;
 

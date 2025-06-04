@@ -55,7 +55,7 @@ begin
           end if;
 
         elsif fn = "010" then
-          if q_int > x then
+          if q_int = x then
             pwm_reg <= not pwm_reg;
           else
             pwm_reg <= pwm_reg;
