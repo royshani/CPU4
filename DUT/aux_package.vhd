@@ -9,14 +9,18 @@ component top IS
 			pwm_n: INTEGER := 16
 			); 
   PORT 
-  (  
-	x, y: IN STD_LOGIC_VECTOR (n-1 DOWNTO 0);
-	clk, rst, ena : IN STD_LOGIC;
-		  ALUFN_i : IN STD_LOGIC_VECTOR (4 DOWNTO 0);
-		  ALUout_o: out STD_LOGIC_VECTOR(n-1 downto 0);
+  (
+		  clk  : in std_logic; -- for signal tap
+		  -- Switch Port
+		  SW_i : in std_logic_vector(9 downto 0);
+		  -- Keys Ports
+		  KEY0, KEY1, KEY2, KEY3 : in std_logic;
+		  Pwm_out : OUT std_logic;
+		  -- 7 segment Ports
 		  HEX0, HEX1, HEX2, HEX3, HEX4, HEX5: out std_logic_vector(HEX_num-1 downto 0);
-		  Nflag_o,Cflag_o,Zflag_o,Vflag_o, Pwm_out: OUT STD_LOGIC
-  ); 
+		  -- Leds Port
+		  LEDs: out std_logic_vector(9 downto 0)  
+  );
 end component top;
 ---------------------------------------------------------  
 	component FA is
@@ -85,6 +89,7 @@ component ALU IS
 		   m : integer := 4	); 
   PORT 
   (  
+	ena : in STD_LOGIC;
 	Y_i,X_i: IN STD_LOGIC_VECTOR (n-1 DOWNTO 0);
 		  ALUFN_i : IN STD_LOGIC_VECTOR (4 DOWNTO 0);
 		  ALUout_o: out STD_LOGIC_VECTOR(n-1 downto 0);

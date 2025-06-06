@@ -11,6 +11,7 @@ ENTITY ALU IS  -- Define the ALU entity
     m : integer := 4   -- Additional generic (not used in this code)
   ); 
   PORT (
+    ena : in STD_LOGIC;
     Y_i, X_i: IN STD_LOGIC_VECTOR(n-1 DOWNTO 0);  -- Operand inputs
     ALUFN_i : IN STD_LOGIC_VECTOR(4 DOWNTO 0);    -- ALU function selector (5-bit)
     ALUout_o: OUT STD_LOGIC_VECTOR(n-1 DOWNTO 0); -- ALU result output
@@ -31,7 +32,8 @@ ARCHITECTURE struct OF ALU IS
 BEGIN
 
   -- Extract lower 3 bits of ALUFN for submodules
-  ALUFN_TEMP <= ALUFN_i(2 DOWNTO 0);
+  ALUFN_TEMP <= ALUFN_i(2 downto 0);
+
 
   -- All-zero vector for Z comparison and default output
   zeros <= (not X_i) and X_i;
@@ -66,7 +68,8 @@ BEGIN
   ---------------------------------------------------------------------------------------------------------
 
   -- Mux final ALU output based on ALUFN category
-  ALUOUT <= res_adder   when ALUFN_i(4 DOWNTO 3) = "01" else
+  ALUOUT <= zeros when ena = '0' else
+            res_adder   when ALUFN_i(4 DOWNTO 3) = "01" else
             res_logic   when ALUFN_i(4 DOWNTO 3) = "11" else
             res_shifter when ALUFN_i(4 DOWNTO 3) = "10" else
             zeros;
@@ -78,7 +81,8 @@ BEGIN
   Nflag_o <= '1' when ALUOUT(n-1) = '1' else '0';
 
   -- Carry flag: from adder or shifter depending on operation type
-  Cflag_o <= cout_adder  when ALUFN_i(4 DOWNTO 3) = "01" else
+  Cflag_o <= '0' when ena = '0' else
+             cout_adder  when ALUFN_i(4 DOWNTO 3) = "01" else
              cout_shifter when ALUFN_i(4 DOWNTO 3) = "10" else
              '0';
 
@@ -86,7 +90,8 @@ BEGIN
   ALUout_o <= ALUOUT;
 
   -- Overflow flag: calculated based on signed overflow rules for addition/subtraction
-  Vflag_o <= ((X_i(n-1) and Y_i(n-1) and (not ALUOUT(n-1))) or 
+  Vflag_o <= '0' when ena = '0' else
+              ((X_i(n-1) and Y_i(n-1) and (not ALUOUT(n-1))) or 
               ((not X_i(n-1)) and (not Y_i(n-1)) and ALUOUT(n-1))) when ALUFN_i = "01000" else
              ((X_i(n-1) and (not Y_i(n-1)) and  ALUOUT(n-1)) or 
               ((not X_i(n-1)) and Y_i(n-1) and (not ALUOUT(n-1)))) when ALUFN_i = "01001" else

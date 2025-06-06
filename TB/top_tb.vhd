@@ -18,10 +18,10 @@ architecture rtb of top_tb is
     -- Instruction memory type
     type mem is array (0 to ROWmax) of std_logic_vector(4 downto 0);
     signal Icache : mem := (
-        "00000", "00001", "01010", "01000", "01001", "01010", "01000", "01001", "10000", "10001",
-        "10010", "10000", "10001", "10010", "11001", "11010", "11101", "11111", "11011", "00100",
-        "01100", "01101", "01110", "01111", "10000", "10001", "10010", "10011", "10100", "10101",
-        "10110", "10111", "11000", "11001", "11010", "11011", "11100", "11101", "11110", "11111"
+        "00000", "00001", "00010", "01000", "01001", "01010", "01000", "01001", "10000", "10001",
+        "10001", "10000", "10001", "11000", "11001", "11010", "11011", "11100", "11101", "11110",
+        "00000", "00001", "00010", "01000", "01001", "01010", "01000", "01001", "10000", "10001",
+        "10001", "10000", "10001", "11000", "11001", "11010", "11011", "11100", "11101", "11110"
     );
 
     -- DUT Signals
@@ -59,12 +59,7 @@ architecture rtb of top_tb is
 begin
 
     -- Instantiate the DUT
-    uut: entity work.top
-        generic map (
-            HEX_num => HEX_num,
-            n       => n,
-            pwm_n   => pwm_n
-        )
+    mapTop: top
         port map (
             clk      => clk,
             SW_i     => SW_i,
@@ -94,47 +89,57 @@ begin
 
     -- Test logic
     stimulus : process
-        variable expected : std_logic_vector(7 downto 0);
+    variable expected : std_logic_vector(7 downto 0);
     begin
         -- Initial values
         wait for 20 ns;
 
-        -- Load Y = 0x12 (LSB)
+        -- Load Y = 0x12 (LSB) HEX2
         SW_i(9) <= '0';
         SW_i(7 downto 0) <= "00010010";  -- 0x12
         KEY0 <= '0'; wait for 10 ns; KEY0 <= '1';
+        wait for 10 ns;  -- Wait before next key press
 
-        -- Load Y = 0x34 (MSB)
+        -- Load Y = 0x34 (MSB) HEX3
         SW_i(9) <= '1';
         SW_i(7 downto 0) <= "00110100";  -- 0x34
         KEY0 <= '0'; wait for 10 ns; KEY0 <= '1';
+        wait for 10 ns;
 
-        -- Load X = 0x56 (LSB)
+        -- Load X = 0x56 (LSB) HEX0
         SW_i(9) <= '0';
         SW_i(7 downto 0) <= "01010110";  -- 0x56
         KEY1 <= '0'; wait for 10 ns; KEY1 <= '1';
+        wait for 10 ns;
 
-        -- Load X = 0x78 (MSB)
+        -- Load X = 0x78 (MSB) HEX1
         SW_i(9) <= '1';
         SW_i(7 downto 0) <= "01111000";  -- 0x78
         KEY1 <= '0'; wait for 10 ns; KEY1 <= '1';
+        wait for 10 ns;
 
         -- Loop through ALUFN instructions
         for i in 0 to ROWmax loop
-            
+            -- Enable calculation
+            SW_i(9) <= '0';
+            SW_i(8) <= '1';
+
             -- Set ALUFN
             SW_i(4 downto 0) <= Icache(i);
+
+            -- First KEY2 press
             KEY2 <= '0'; wait for 10 ns; KEY2 <= '1';
+            wait for 50 ns;
 
-            -- Enable calculation
-            SW_i(8) <= '1'; wait for 10 ns; SW_i(8) <= '0';
+            -- Optional: reassert ALUFN
+            SW_i(4 downto 0) <= Icache(i);
 
-            wait for 50 ns;  -- Let computation propagate
+            -- Second KEY2 press
+            KEY2 <= '0'; wait for 10 ns; KEY2 <= '1';
+            wait for 50 ns;
 
             -- Compute expected result
-            
-            expected := alu_ref("01111000", "00110100", Icache(i));  -- X = 0x78, Y = 0x34
-
+            expected := alu_ref("01111000", "00110100", Icache(i));
             wait for 50 ns;
         end loop;
 

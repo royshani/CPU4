@@ -1,17 +1,18 @@
 onerror {resume}
-add list /tb3/Y
-add list /tb3/X
-add list /tb3/ALUFN
-add list /tb3/ALUout
-add list /tb3/Nflag
-add list /tb3/Cflag
-add list /tb3/Zflag
-add list /tb3/Vflag
-add list /tb3/p_out
-add list /tb3/clk
-add list /tb3/rst
-add list /tb3/ena
-add list /tb3/Icache
+add list -width 14 /top_tb/SW_i
+add list /top_tb/Pwm_out
+add list /top_tb/LEDs
+add list /top_tb/KEY3
+add list /top_tb/KEY2
+add list /top_tb/KEY1
+add list /top_tb/KEY0
+add list /top_tb/HEX5
+add list /top_tb/HEX4
+add list /top_tb/HEX3
+add list /top_tb/HEX2
+add list /top_tb/HEX1
+add list /top_tb/HEX0
+add list /top_tb/clk
 configure list -usestrobe 0
 configure list -strobestart {0 ps} -strobeperiod {0 ps}
 configure list -usesignaltrigger 1

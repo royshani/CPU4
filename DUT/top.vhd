@@ -40,13 +40,17 @@ ARCHITECTURE roman OF top IS
 BEGIN
 
 	---------------------------------------------------------------------------------------------------------
-	m1: PLL port map(
+	m1: PLL port map( --comment out this block for simulation
+		
 	inclk0 => clk,
 	c0 => ALU_clk
 	);
 
+	-- -- synthesis translate_off
+    -- ALU_clk <= clk;  -- Bypass PLL for simulation: use input clk directly
+    -- -- synthesis translate_on
 	
-	ALU_part : ALU generic map(n) port map( Y, X, ALUFN_i , ALUout_o, Nflag_o, Cflag_o, Zflag_o, Vflag_o);
+	ALU_part : ALU generic map(n) port map( ena, Y, X, ALUFN_i , ALUout_o, Nflag_o, Cflag_o, Zflag_o, Vflag_o);
 	
 	down_entity_part : down_entity generic map(pwm_n) port map( X_pwm, Y_pwm, ALUFN_i, Pwm_out, ALU_clk, rst, ena);
 	
@@ -65,14 +69,14 @@ BEGIN
 	-------------------Keys Binding--------------------------
 	registerAssignment: process(KEY0, KEY1, KEY2, KEY3, SW_i(9), SW_i(8)) 
 	begin
-		if rising_edge(clk) then
+	--	if rising_edge(clk) then
 			if KEY3 = '0' then
-			rst <= '1';
-			Y <= (others => '0') ;
-			X <= (others => '0') ;
-			ALUFN_i <= (others => '0');
-			X_pwm <= (others => '0');
-			Y_pwm <= (others => '0');
+				rst <= '1';
+				Y <= (others => '0') ;
+				X <= (others => '0') ;
+				ALUFN_i <= (others => '0');
+				X_pwm <= (others => '0');
+				Y_pwm <= (others => '0');
 			
 			elsif KEY0 = '0' and SW_i(9) = '0' then
 				rst <= '0';
@@ -88,22 +92,17 @@ BEGIN
 			elsif KEY1 = '0' and SW_i(9) = '1' then
 				rst <= '0';
 				X_pwm(15 downto 8) <= SW_i(n-1 downto 0);
+			elsif KEY2 = '0' then
+				ALUFN_i(4 DOWNTO 0) <= SW_i(4 DOWNTO 0);
 			end if;
 
 			if SW_i(8) = '1' then
-				rst <= '0';
 				ena <= '1';
-				if KEY2 = '0' THEN
-					ALUFN_i <= SW_i(4 downto 0);
-				END IF;
 			elsif SW_i(8) = '0' then
-				rst <= '0';
 				ena <= '0';
-				if KEY2 = '0' then
-					ALUFN_i <= highz(4 downto 0);
-				end if;
 			end if;
-		end if;
+			
+	--	end if;
 	end process registerAssignment;
 	
 	NibbleSelector : process(SW_i, X, Y, ALUout_o)
@@ -121,22 +120,18 @@ BEGIN
 
 			Y_nibble0 <= Y_pwm(11 downto 8);
 			Y_nibble1 <= Y_pwm(15 downto 12);
-				
-		end if;
 
+		end if;
+		ALU_nibble0 <= ALUout_o(3 downto 0);
+		ALU_nibble1 <= ALUout_o(7 downto 4);
 		--if ena = '1' then
-			ALU_nibble0 <= ALUout_o(3 downto 0);
-			ALU_nibble1 <= ALUout_o(7 downto 4);
-			LEDs(0) <= Vflag_o;
-			LEDs(1) <= Zflag_o;
-			LEDs(2) <= Nflag_o;
-			LEDs(3) <= Cflag_o;
-			LEDs(9 downto 5) <= ALUFN_i;
-		--else
-		--	ALU_nibble0 <= (others => '0') ;
-		--	ALU_nibble1 <= (others => '0') ;
-		--	LEDs <= (others => '0') ;
-		-- end if;
+
+		LEDs(0) <= Vflag_o;
+		LEDs(1) <= Zflag_o;
+		LEDs(2) <= Nflag_o;
+		LEDs(3) <= Cflag_o;
+		LEDs(9 downto 5) <= ALUFN_i;
+
 
 			--------------------LEDS Binding-------------------------
 	end process NibbleSelector;

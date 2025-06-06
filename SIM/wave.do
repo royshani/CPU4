@@ -1,19 +1,22 @@
 onerror {resume}
 quietly WaveActivateNextPane {} 0
-add wave -noupdate /tb3/clk
-add wave -noupdate /tb3/rst
-add wave -noupdate /tb3/Y
-add wave -noupdate /tb3/X
-add wave -noupdate /tb3/p_out
-add wave -noupdate /tb3/ALUFN
-add wave -noupdate /tb3/ALUout
-add wave -noupdate /tb3/Nflag
-add wave -noupdate /tb3/Cflag
-add wave -noupdate /tb3/Zflag
-add wave -noupdate /tb3/Vflag
-add wave -noupdate /tb3/ena
+add wave -noupdate /top_tb/SW_i
+add wave -noupdate /top_tb/Pwm_out
+add wave -noupdate /top_tb/LEDs
+add wave -noupdate /top_tb/KEY3
+add wave -noupdate /top_tb/KEY2
+add wave -noupdate /top_tb/KEY1
+add wave -noupdate /top_tb/KEY0
+add wave -noupdate /top_tb/HEX5
+add wave -noupdate /top_tb/HEX4
+add wave -noupdate /top_tb/HEX3
+add wave -noupdate /top_tb/HEX2
+add wave -noupdate /top_tb/HEX1
+add wave -noupdate /top_tb/HEX0
+add wave -noupdate /top_tb/clk
+add wave -noupdate /top_tb/uut/X
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {1423152 ps} 0}
+WaveRestoreCursors {{Cursor 1} {24525 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 150
 configure wave -valuecolwidth 100
@@ -29,4 +32,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
 update
-WaveRestoreZoom {0 ps} {4921403 ps}
+WaveRestoreZoom {0 ps} {293696 ps}
